@@ -1,63 +1,43 @@
-[![Build Status](https://dev.azure.com/simplify9/Github%20Pipelines/_apis/build/status/simplify9.EfCoreExtensions?branchName=master)](https://dev.azure.com/simplify9/Github%20Pipelines/_build/latest?definitionId=168&branchName=master) 
 
-![Azure DevOps tests](https://img.shields.io/azure-devops/tests/Simplify9/Github%20Pipelines/168?style=for-the-badge)
-
+[![GitHub Actions](https://github.com/simplify9/EfCoreExtensions/actions/workflows/nuget-publish.yml/badge.svg)](https://github.com/simplify9/EfCoreExtensions/actions/workflows/nuget-publish.yml)
+[![NuGet](https://img.shields.io/nuget/v/SimplyWorks.EfCoreExtensions?style=for-the-badge)](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 | **Package**       | **Version** |
 | :----------------:|:----------------------:|
-|```SimplyWorks.EfCoreExtensions```| ![Nuget](https://img.shields.io/nuget/v/SimplyWorks.EfCoreExtensions?style=for-the-badge)
+|`SimplyWorks.EfCoreExtensions`| [![NuGet](https://img.shields.io/nuget/v/SimplyWorks.EfCoreExtensions?style=for-the-badge)](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions) |
 
-## Introduction  
-[*EfCoreExtensions*](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions/) is Simplify9's master list of EfCore-compatible extensions, made in mind to abstract tasks and enhance EntityFramework capabilities. 
 
-## EfCoreExtensions 
+## Overview
 
-#### ChangeTrackerExtensions.cs
->`ApplySoftDeletion`
+This repository contains open-source Entity Framework Core extensions for .NET, provided by Simplify9. The main NuGet package is [`SimplyWorks.EfCoreExtensions`](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions), targeting `net8.0` and licensed under MIT.
 
-> `ApplyAuditValues`
+### Main Features
+The extensions are organized by file and provide additional helpers for EF Core, including:
 
->`ApplyTenantValues`
+- **ChangeTrackerExtensions.cs**: Soft deletion, audit values, tenant values, domain event dispatching.
+- **DbContextExtensions.cs**: Helpers for working with DbContext and relational types.
+- **EntityEntryExtensions.cs**: Property setting utilities.
+- **EntityTypeBuilderExtensions.cs**: Entity type builder helpers.
+- **ExpressionExtensions.cs**: Expression utilities.
+- **ICollectionExtensions.cs**: Collection update helpers.
+- **IHostExtensions.cs**: Host-related helpers.
+- **IQueryableOfTExtensions.cs**: Queryable extensions and search conditions.
+- **ModelBuilderExtensions.cs**: Model builder helpers.
+- **OwnedNavigationBuilderExtensions.cs**: Owned navigation builder helpers.
 
->`DispatchDomainEvents`
+See the source files for the full list of available extension methods and their usage.
 
-#### DbContextExtensions.cs
->`DbContextExtensions`
+### Projects
+- `SW.EfCoreExtensions`: Main EF Core extensions library.
+- `SW.EfCoreExtensions.PgSql`: PostgreSQL-specific extensions.
+- `SW.EfCoreExtensions.UnitTests`: Unit tests for the extensions.
 
->`Task<List<TEntity>>`
+### License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
->`List<TEntity>`
-
->`RelationalDbType`
-
-#### EntityEntryExtensions.cs
->`SetProperties`
-
-#### EntityTypeBuilderExtensions.cs
->`EntityTypeBuilder`
-
-#### ExpressionExtensions.cs
-
-#### ICollectionExtensions.cs
->`Update<TSource>`
-
-#### IHostExtensions.cs
->`IHost`
-
-#### IQueryableOfTExtensions.cs
->`IQueryable<TEntity>`
-
->`SearchyCondition`
-
-#### ModelBuilderExtensions.cs
->`ModelBuilder`
-
-#### OwnedNavigationBuilderExtensions.cs
->`OwnedNavigationBuilder<TOwner`
-
->`StreetAddress> BuildStreetAddress<TOwner>`
-
->`GeoPosition> BuildGeoPosition<TOwner>`
+### Build & CI
+GitHub Actions are used for CI/CD. See the badge above for status. NuGet packages are published automatically on new releases.
 
 >`Contact> BuildContact<TOwner>`
 

@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <PackageId>SimplyWorks.EfCoreExtensions</PackageId>
-    <Authors>Simplify9</Authors>
-    <Product>SimplyWorks.EfCoreExtensions</Product>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/simplify9/EfCoreExtensions</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/simplify9/EfCoreExtensions</RepositoryUrl>
-    <PackageIcon>icon.png</PackageIcon>
+  <TargetFramework>net8.0</TargetFramework>
+  <PackageId>SimplyWorks.EfCoreExtensions</PackageId>
+  <Authors>Simplify9</Authors>
+  <Product>SimplyWorks.EfCoreExtensions</Product>
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  <PackageProjectUrl>https://github.com/simplify9/EfCoreExtensions</PackageProjectUrl>
+  <RepositoryUrl>https://github.com/simplify9/EfCoreExtensions</RepositoryUrl>
+  <PackageIcon>icon.png</PackageIcon>
+  <Description>Open-source Entity Framework Core extensions for .NET, including helpers for ChangeTracker, DbContext, IQueryable, and more. See full documentation at https://github.com/simplify9/EfCoreExtensions</Description>
   </PropertyGroup>
 
   <ItemGroup>
