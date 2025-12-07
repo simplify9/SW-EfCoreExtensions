@@ -51,10 +51,10 @@ namespace SW.EfCoreExtensions
                 if (entry.Entity is ICreationAudited && entry.State == EntityState.Added)
                     TrySetProperty(entry.Entity, nameof(ICreationAudited.CreatedBy), userId);
 
-                if (entry.Entity is IHasModificationTime && (entry.State == EntityState.Added || entry.State == EntityState.Modified))
+                if (entry.Entity is IHasModificationTime && entry.State == EntityState.Modified)
                     TrySetProperty(entry.Entity, nameof(IHasModificationTime.ModifiedOn), timestamp);
 
-                if (entry.Entity is IModificationAudited && (entry.State == EntityState.Added || entry.State == EntityState.Modified))
+                if (entry.Entity is IModificationAudited && entry.State == EntityState.Modified)
                     TrySetProperty(entry.Entity, nameof(IModificationAudited.ModifiedBy), userId);
             }
         }
