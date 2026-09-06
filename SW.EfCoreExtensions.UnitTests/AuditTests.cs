@@ -65,7 +65,7 @@ namespace SW.EfCoreExtensions.UnitTests
             dbContext.Add(NewEmployee());
 
             var changes = SingleEmployeeEntry(
-                dbContext.ChangeTracker.CapturePendingAuditDiffs(options: ExcludeEmail)).Changes;
+                dbContext.ChangeTracker.CapturePendingAuditDiffs(null, ExcludeEmail)).Changes;
 
             Assert.IsFalse(changes.ContainsKey(nameof(Employee.Email)));
             Assert.IsTrue(changes.ContainsKey(nameof(Employee.UserName)));
@@ -85,7 +85,7 @@ namespace SW.EfCoreExtensions.UnitTests
             employee.LastName = "Jones";
 
             var changes = SingleEmployeeEntry(
-                dbContext.ChangeTracker.CapturePendingAuditDiffs(options: ExcludeEmail)).Changes;
+                dbContext.ChangeTracker.CapturePendingAuditDiffs(null, ExcludeEmail)).Changes;
 
             Assert.IsFalse(changes.ContainsKey(nameof(Employee.Email)));
             Assert.AreEqual("Jones", changes[nameof(Employee.LastName)].New);
@@ -100,7 +100,7 @@ namespace SW.EfCoreExtensions.UnitTests
             dbContext.Add(NewEmployee());
             dbContext.Add(new SomeData { StringArray = new[] { "x" } });
 
-            var captured = dbContext.ChangeTracker.CapturePendingAuditDiffs(options: new AuditOptions
+            var captured = dbContext.ChangeTracker.CapturePendingAuditDiffs(null, new AuditOptions
             {
                 ShouldAuditEntity = entry => entry.Entity is SomeData
             });

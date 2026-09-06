@@ -227,9 +227,17 @@ var pending = ChangeTracker.CapturePendingAuditDiffs(_currentUserId, options);
 
 ```csharp
 public static IReadOnlyCollection<PendingAuditEntry>
-    CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null,
-        AuditOptions? options = null)
+    CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null)
+
+public static IReadOnlyCollection<PendingAuditEntry>
+    CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId,
+        AuditOptions? options)
 ```
+
+> Two overloads rather than one with an optional `options`: optional arguments are baked in at
+> the call site, so adding one to a published method leaves assemblies already compiled against
+> the old signature unable to bind to it. It also means `options` can't be passed on its own —
+> give `userId` explicitly, `null` if there isn't one.
 
 **Call this BEFORE `SaveChanges`.**
 
@@ -239,7 +247,7 @@ Scans the EF Core change tracker for all entities in `Added`, `Modified`, or `De
 |----------------|-----------|----------|-------------|
 | `changeTracker`| `ChangeTracker` | yes (extension) | The EF Core change tracker from your `DbContext`. |
 | `userId`       | `string?` | no       | The current user/actor identifier. Pass from your HTTP context, JWT claim, or service identity. Defaults to `null`. |
-| `options`      | `AuditOptions?` | no | Filters narrowing which entities and properties are captured. See [AuditOptions](#auditoptions). Defaults to `null`, which captures everything. |
+| `options`      | `AuditOptions?` | yes, on the three-parameter overload | Filters narrowing which entities and properties are captured. See [AuditOptions](#auditoptions). `null` captures everything. |
 
 **Returns:** `IReadOnlyCollection<PendingAuditEntry>` — one entry per changed entity. Entities with no meaningful property changes (e.g. only EF-internal temporary properties) are excluded.
 

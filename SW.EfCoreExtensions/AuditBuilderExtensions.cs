@@ -160,7 +160,6 @@ public static class AuditBuilderExtension
     /// </summary>
     /// <param name="changeTracker">The Entity Framework change tracker to capture changes from.</param>
     /// <param name="userId">Optional identifier of the user or actor making the changes. Used for audit accountability.</param>
-    /// <param name="options">Optional filters narrowing which entities and properties are captured. When omitted, every changed entity and every property is recorded.</param>
     /// <returns>A read-only collection of pending audit entries, each representing a single entity change.</returns>
     /// <remarks>
     /// This method performs the following:
@@ -182,8 +181,21 @@ public static class AuditBuilderExtension
     /// </code>
     /// </example>
     public static IReadOnlyCollection<PendingAuditEntry>
-        CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null,
-            AuditOptions? options = null)
+        CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null)
+        => changeTracker.CapturePendingAuditDiffs(userId, null);
+
+    /// <inheritdoc cref="CapturePendingAuditDiffs(ChangeTracker, string?)"/>
+    /// <param name="changeTracker">The Entity Framework change tracker to capture changes from.</param>
+    /// <param name="userId">Optional identifier of the user or actor making the changes.</param>
+    /// <param name="options">Filters narrowing which entities and properties are captured. Null captures everything.</param>
+    /// <remarks>
+    /// A separate overload rather than an optional parameter on the one above: optional arguments
+    /// are baked in at the call site, so adding one to a published method leaves assemblies already
+    /// compiled against the old signature unable to bind to it.
+    /// </remarks>
+    public static IReadOnlyCollection<PendingAuditEntry>
+        CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId,
+            AuditOptions? options)
     {
         changeTracker.DetectChanges();
 
