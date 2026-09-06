@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using SW.PrimitiveTypes;
 
 namespace SW.EfCoreExtensions;
@@ -34,7 +35,7 @@ public sealed record PropertyDiff(
 public sealed record GenericAuditDiffJson(
     string CorrelationId,
     int Sequence,
-    DateTime Timestamp,
+    DateTimeOffset Timestamp,
     string? UserId,
     string EntityName,
     string EntityType,
@@ -78,7 +79,7 @@ public sealed class PendingAuditEntry
     /// <summary>
     /// Gets or sets the UTC timestamp when this change was captured.
     /// </summary>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
     
     /// <summary>
     /// Gets or sets the optional identifier of the user or actor who made the change.
@@ -119,6 +120,34 @@ public sealed class PendingAuditEntry
 
 
 /// <summary>
+/// Controls what <see cref="AuditBuilderExtension.CapturePendingAuditDiffs"/> records. Both filters
+/// default to <c>null</c>, which captures every changed entity and every one of its properties —
+/// the behaviour callers get when they pass no options at all.
+/// </summary>
+/// <remarks>
+/// <see cref="ShouldAuditProperty"/> is what keeps credentials out of an audit log. It is applied
+/// before the entity state is considered, so a property excluded here is absent from an
+/// <see cref="EntityState.Added"/> snapshot just as it is from a <see cref="EntityState.Modified"/>
+/// diff — an exclusion that only covered modifications would still write the secret out in full the
+/// first time the row was inserted.
+/// </remarks>
+public sealed class AuditOptions
+{
+    /// <summary>
+    /// Decides whether an entity is audited at all. Return <c>false</c> and no entry is produced for
+    /// it. Use this to keep high-volume runtime tables out of a log meant to record configuration
+    /// changes, where one entry per row processed would bury the entries worth reading.
+    /// </summary>
+    public Func<EntityEntry, bool>? ShouldAuditEntity { get; init; }
+
+    /// <summary>
+    /// Decides whether a single property is captured. Return <c>false</c> and the property appears
+    /// in no diff, whatever state its entity is in.
+    /// </summary>
+    public Func<EntityEntry, IProperty, bool>? ShouldAuditProperty { get; init; }
+}
+
+/// <summary>
 /// Provides extension methods for building audit trails from Entity Framework Core change tracking.
 /// Enables capturing, finalizing, and reconstructing entity changes for audit logging purposes.
 /// </summary>
@@ -131,6 +160,7 @@ public static class AuditBuilderExtension
     /// </summary>
     /// <param name="changeTracker">The Entity Framework change tracker to capture changes from.</param>
     /// <param name="userId">Optional identifier of the user or actor making the changes. Used for audit accountability.</param>
+    /// <param name="options">Optional filters narrowing which entities and properties are captured. When omitted, every changed entity and every property is recorded.</param>
     /// <returns>A read-only collection of pending audit entries, each representing a single entity change.</returns>
     /// <remarks>
     /// This method performs the following:
@@ -139,6 +169,7 @@ public static class AuditBuilderExtension
     /// <item><description>Generates a shared correlation ID for all changes in this batch</description></item>
     /// <item><description>Records a UTC timestamp shared by all changes</description></item>
     /// <item><description>Skips entities with no meaningful changes (e.g., only temporary properties changed)</description></item>
+    /// <item><description>Skips entities and properties excluded by <paramref name="options"/></description></item>
     /// <item><description>Captures domain events from entities implementing IGeneratesDomainEvents</description></item>
     /// </list>
     /// Use <see cref="FinalizeAuditDiffJson"/> to convert the results to JSON-serializable format.
@@ -151,14 +182,15 @@ public static class AuditBuilderExtension
     /// </code>
     /// </example>
     public static IReadOnlyCollection<PendingAuditEntry>
-        CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null)
+        CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null,
+            AuditOptions? options = null)
     {
         changeTracker.DetectChanges();
 
         var audits = new List<PendingAuditEntry>();
         
         var correlationId = Guid.NewGuid().ToString();
-        var timestamp = DateTime.UtcNow;
+        var timestamp = DateTimeOffset.UtcNow;
         var sequence = 0;
         
         foreach (var entry in changeTracker.Entries()
@@ -166,7 +198,10 @@ public static class AuditBuilderExtension
                          or EntityState.Modified
                          or EntityState.Deleted))
         {
-            var changes = BuildDiff(entry);
+            if (options?.ShouldAuditEntity is not null && !options.ShouldAuditEntity(entry))
+                continue;
+
+            var changes = BuildDiff(entry, options);
 
             if (changes.Count == 0)
                 continue; // nothing meaningful changed
@@ -282,13 +317,16 @@ public static class AuditBuilderExtension
         return state;
     }
     private static Dictionary<string, PropertyDiff>
-        BuildDiff(EntityEntry entry)
+        BuildDiff(EntityEntry entry, AuditOptions? options)
     {
         var diffs = new Dictionary<string, PropertyDiff>();
 
         foreach (var prop in entry.Properties)
         {
             if (prop.IsTemporary)
+                continue;
+
+            if (options?.ShouldAuditProperty is not null && !options.ShouldAuditProperty(entry, prop.Metadata))
                 continue;
 
             if (entry.State == EntityState.Added)

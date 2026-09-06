@@ -14,6 +14,7 @@
    - [DomainEventEnvelope](#domaineventenvelope)
    - [PendingAuditEntry](#pendingauditentry)
    - [GenericAuditDiffJson](#genericauditdifffson)
+   - [AuditOptions](#auditoptions)
 3. [Methods](#methods)
    - [CapturePendingAuditDiffs](#capturependingauditdiffs)
    - [FinalizeAuditDiffJson](#finalizeauditdifffson)
@@ -183,13 +184,51 @@ The **finalized, serializable** audit record. Safe to serialize to JSON and stor
 
 ---
 
+### `AuditOptions`
+
+```csharp
+public sealed class AuditOptions
+{
+    public Func<EntityEntry, bool>? ShouldAuditEntity { get; init; }
+    public Func<EntityEntry, IProperty, bool>? ShouldAuditProperty { get; init; }
+}
+```
+
+Narrows what `CapturePendingAuditDiffs` records. Both filters are optional; leaving them `null`
+captures every changed entity and every property, which is what callers that pass no options get.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `ShouldAuditEntity`   | `Func<EntityEntry, bool>?` | Return `false` to produce no entry for that entity. Use it to keep high-volume runtime tables out of a log meant to record configuration changes. |
+| `ShouldAuditProperty` | `Func<EntityEntry, IProperty, bool>?` | Return `false` and the property appears in no diff, whatever state its entity is in. |
+
+**Keeping credentials out of the log:**
+
+```csharp
+var options = new AuditOptions
+{
+    ShouldAuditEntity = entry => entry.Entity is Order or Customer,
+    ShouldAuditProperty = (entry, property) =>
+        !(entry.Entity is Customer && property.Name == nameof(Customer.PasswordHash))
+};
+
+var pending = ChangeTracker.CapturePendingAuditDiffs(_currentUserId, options);
+```
+
+> `ShouldAuditProperty` is applied before the entity state is considered. That matters because an
+> `Added` entity is captured as a **full snapshot** rather than a diff — an exclusion that only
+> covered modifications would still write the secret out in full the first time the row was inserted.
+
+---
+
 ## Methods
 
 ### `CapturePendingAuditDiffs`
 
 ```csharp
 public static IReadOnlyCollection<PendingAuditEntry>
-    CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null)
+    CapturePendingAuditDiffs(this ChangeTracker changeTracker, string? userId = null,
+        AuditOptions? options = null)
 ```
 
 **Call this BEFORE `SaveChanges`.**
@@ -200,6 +239,7 @@ Scans the EF Core change tracker for all entities in `Added`, `Modified`, or `De
 |----------------|-----------|----------|-------------|
 | `changeTracker`| `ChangeTracker` | yes (extension) | The EF Core change tracker from your `DbContext`. |
 | `userId`       | `string?` | no       | The current user/actor identifier. Pass from your HTTP context, JWT claim, or service identity. Defaults to `null`. |
+| `options`      | `AuditOptions?` | no | Filters narrowing which entities and properties are captured. See [AuditOptions](#auditoptions). Defaults to `null`, which captures everything. |
 
 **Returns:** `IReadOnlyCollection<PendingAuditEntry>` — one entry per changed entity. Entities with no meaningful property changes (e.g. only EF-internal temporary properties) are excluded.
 
@@ -209,6 +249,7 @@ Scans the EF Core change tracker for all entities in `Added`, `Modified`, or `De
 - Captures a single `DateTimeOffset.UtcNow` timestamp shared by all entries.
 - Assigns a `Sequence` counter (1, 2, 3 …) to each entry in the order they were enumerated.
 - Skips properties where `prop.IsTemporary == true` (e.g. auto-increment PKs before insert).
+- Skips entities and properties rejected by `options`, in every entity state.
 - Captures domain events from entities implementing `IGeneratesDomainEvents`.
 
 ---
