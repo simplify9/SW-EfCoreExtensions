@@ -64,9 +64,9 @@ namespace SW.EfCoreExtensions.UnitTests
             
             Assert.AreEqual(either1Or2.Count(), 2);
 
-            await facade.Delete<Employee>("Bags", new SearchyCondition[]
+            await facade.Delete<Bag>("Bags", new SearchyCondition[]
             {
-                new SearchyCondition(nameof(Employee.Age), SearchyRule.NotEqualsTo, 4),
+                new SearchyCondition(nameof(Bag.Entity), SearchyRule.NotEqualsTo, "4"),
             });
 
         }
