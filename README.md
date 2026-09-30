@@ -10,7 +10,7 @@
 
 ## Overview
 
-This repository contains open-source Entity Framework Core extensions for .NET, provided by Simplify9. The main NuGet package is [`SimplyWorks.EfCoreExtensions`](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions), targeting `net8.0` and licensed under MIT.
+This repository contains open-source Entity Framework Core extensions for .NET, provided by Simplify9. The main NuGet package is [`SimplyWorks.EfCoreExtensions`](https://www.nuget.org/packages/SimplyWorks.EfCoreExtensions), targeting `net10.0` and licensed under MIT.
 
 ### Main Features
 The extensions are organized by file and provide additional helpers for EF Core, including:

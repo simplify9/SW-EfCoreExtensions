@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  <TargetFramework>net8.0</TargetFramework>
+  <TargetFramework>net10.0</TargetFramework>
   <PackageId>SimplyWorks.EfCoreExtensions</PackageId>
   <Authors>Simplify9</Authors>
   <Product>SimplyWorks.EfCoreExtensions</Product>
@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.12" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="SimplyWorks.PrimitiveTypes" Version="8.1.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.23" />
+    <PackageReference Include="SimplyWorks.PrimitiveTypes" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.20" />
 
   </ItemGroup>
 
