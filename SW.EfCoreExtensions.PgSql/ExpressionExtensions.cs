@@ -55,29 +55,10 @@ namespace SW.EfCoreExtensions
             switch (filter.Rule)
             {
                 case SearchyRule.StartsWith:
-                    //MethodInfo iLikeMethod = typeof(NpgsqlDbFunctionsExtensions).GetMethod("ILike", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
-
-                    return Expression.Call(
-                        typeof(NpgsqlDbFunctionsExtensions),
-                        nameof(NpgsqlDbFunctionsExtensions.ILike),
-                        Type.EmptyTypes,
-                        Expression.Property(null, typeof(EF), nameof(EF.Functions)),
-                        fieldNameExpression,
-                        Expression.Constant($"{filter.Value}%")
-                    );
-
-                    //return Expression.Call(fieldNameExpression, typeof(string).GetMethod("StartsWith", new Type[] { typeof(string) }), GetValueAsConstantExpression(filter.Value, fieldType));
+                    return BuildILikeExpression(fieldNameExpression, $"{EscapeLikePattern(filter.Value)}%");
 
                 case SearchyRule.Contains:
-
-                    return Expression.Call(
-                        typeof(NpgsqlDbFunctionsExtensions),
-                        nameof(NpgsqlDbFunctionsExtensions.ILike),
-                        Type.EmptyTypes,
-                        Expression.Property(null, typeof(EF), nameof(EF.Functions)),
-                        fieldNameExpression,
-                        Expression.Constant($"%{filter.Value}%")
-                    );
+                    return BuildILikeExpression(fieldNameExpression, $"%{EscapeLikePattern(filter.Value)}%");
 
                 case SearchyRule.EqualsTo:
                     return Expression.Equal(fieldNameExpression, GetValueAsConstantExpression(filter.Value, fieldType));
@@ -118,6 +99,28 @@ namespace SW.EfCoreExtensions
                     return null;
             }
         }
+
+        // The value is escaped so a '%' or '_' in it matches literally, as string.Contains/StartsWith
+        // do. The escape character has to be passed explicitly: ILike without one makes Npgsql emit
+        // ESCAPE '', which turns escaping off altogether.
+        const string LikeEscapeCharacter = "\\";
+
+        static Expression BuildILikeExpression(Expression fieldNameExpression, string pattern) =>
+            Expression.Call(
+                typeof(NpgsqlDbFunctionsExtensions),
+                nameof(NpgsqlDbFunctionsExtensions.ILike),
+                Type.EmptyTypes,
+                Expression.Property(null, typeof(EF), nameof(EF.Functions)),
+                fieldNameExpression,
+                Expression.Constant(pattern),
+                Expression.Constant(LikeEscapeCharacter)
+            );
+
+        static string EscapeLikePattern(object value) =>
+            $"{value}"
+                .Replace(LikeEscapeCharacter, LikeEscapeCharacter + LikeEscapeCharacter)
+                .Replace("%", LikeEscapeCharacter + "%")
+                .Replace("_", LikeEscapeCharacter + "_");
 
         static Expression GetValueAsConstantExpression(object value, Type type)
         {
