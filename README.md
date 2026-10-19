@@ -68,6 +68,13 @@ number) and booleans written as `1`/`0`. Sorts accept any property type and dott
 (`Customer.Address.City`). In `SimplyWorks.EfCoreExtensions.PgSql`, `StartsWith` and `Contains` are
 case-insensitive `ILIKE`, with `%`, `_` and `\` in the value matched literally.
 
+#### Query shaping
+>`RowProjection.Of<T>(columns)` / `RowProjection.Many<T, TChild>(...)`: project to `object[]` rows of the chosen columns, nested collections included, so a query reads only what the caller asked for.
+
+>`AfterKeyset` / `OrderByKeyset`: keyset ("seek") paging; a deep page costs the same as the first.
+
+>`ToPageAsync(size)`: a page and whether more rows follow, without a count. `CountUpToAsync(limit)`: a count that stops at a limit ("10,000+").
+
 
 ## Getting support 👷
 If you encounter any bugs, don't hesitate to submit an [issue](https://github.com/simplify9/EfCoreExtensions/issues). We'll get back to you promptly!
