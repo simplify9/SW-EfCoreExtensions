@@ -75,6 +75,8 @@ case-insensitive `ILIKE`, with `%`, `_` and `\` in the value matched literally.
 
 >`ToPageAsync(size)`: a page and whether more rows follow, without a count. `CountUpToAsync(limit)`: a count that stops at a limit ("10,000+").
 
+>`QueryExpressions.Parameter(value, type)` / `QueryExpressions.TextMatch(field, text, kind)`: for code that builds its own filters, a value EF Core sends as a parameter, and the package's text match (escaped `ILIKE` in PgSql).
+
 
 ## Getting support 👷
 If you encounter any bugs, don't hesitate to submit an [issue](https://github.com/simplify9/EfCoreExtensions/issues). We'll get back to you promptly!

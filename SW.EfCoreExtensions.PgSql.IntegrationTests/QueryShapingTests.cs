@@ -135,4 +135,23 @@ public class QueryShapingTests
         Assert.AreEqual(new CountUpTo(All.Count, false), await db.Orders.CountUpToAsync(All.Count));
         Assert.AreEqual(new CountUpTo(0, false), await db.Orders.Where(o => o.Id < 0).CountUpToAsync(10));
     }
+
+    [TestMethod]
+    public async Task Public_helpers_parameterise_and_match_text()
+    {
+        var row = Expression.Parameter(typeof(Order), "o");
+        var number = Expression.Property(row, nameof(Order.Number));
+        var suffix = Expression.Lambda<Func<Order, bool>>(QueryExpressions.TextMatch(number, "50%", TextMatchKind.Suffix), row);
+        var total = Expression.Lambda<Func<Order, bool>>(
+            Expression.GreaterThan(Expression.Property(row, nameof(Order.Total)), QueryExpressions.Parameter("250.5", typeof(decimal))), row);
+
+        ClearCommands();
+        await using var db = NewContext();
+        CollectionAssert.AreEqual(All.Where(o => o.Number.EndsWith("50%")).Select(o => o.Id).ToList(),
+            await db.Orders.Where(suffix).OrderBy(o => o.Id).Select(o => o.Id).ToListAsync());
+        CollectionAssert.AreEqual(All.Where(o => o.Total > 250.5m).Select(o => o.Id).OrderBy(i => i).ToList(),
+            await db.Orders.Where(total).OrderBy(o => o.Id).Select(o => o.Id).ToListAsync());
+        Assert.IsFalse(string.Join("\n", Commands).Contains("250.5"));
+        Assert.AreEqual(OrderStatus.Shipped, QueryExpressions.Convert("shipped", typeof(OrderStatus)));
+    }
 }
