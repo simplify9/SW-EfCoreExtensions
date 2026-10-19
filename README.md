@@ -62,6 +62,12 @@ GitHub Actions are used for CI/CD. See the badge above for status. NuGet package
 
 >`SearchySort`
 
+Filter values are sent as SQL parameters, so a query shape compiles once and its plan is reused for every
+value. Values convert to the field's type with the invariant culture, including `Guid`, enums (by name or
+number) and booleans written as `1`/`0`. Sorts accept any property type and dotted paths
+(`Customer.Address.City`). In `SimplyWorks.EfCoreExtensions.PgSql`, `StartsWith` and `Contains` are
+case-insensitive `ILIKE`, with `%`, `_` and `\` in the value matched literally.
+
 
 ## Getting support 👷
 If you encounter any bugs, don't hesitate to submit an [issue](https://github.com/simplify9/EfCoreExtensions/issues). We'll get back to you promptly!
