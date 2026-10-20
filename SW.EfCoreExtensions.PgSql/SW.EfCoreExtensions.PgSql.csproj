@@ -23,6 +23,8 @@
   <ItemGroup>
     <!-- Searchy is provider-neutral apart from SearchyTextMatch.cs, so the source is shared with the core package. -->
     <Compile Include="..\SW.EfCoreExtensions\Searchy\**\*.cs" LinkBase="Searchy" />
+    <!-- Provider-neutral query shaping (projection rows, keyset paging, capped counts). -->
+    <Compile Include="..\SW.EfCoreExtensions\Querying\**\*.cs" LinkBase="Querying" />
   </ItemGroup>
 
   <ItemGroup>
