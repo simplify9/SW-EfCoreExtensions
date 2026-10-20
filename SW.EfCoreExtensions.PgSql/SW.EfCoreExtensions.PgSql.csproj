@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Searchy is provider-neutral apart from SearchyTextMatch.cs, so the source is shared with the core package. -->
+    <Compile Include="..\SW.EfCoreExtensions\Searchy\**\*.cs" LinkBase="Searchy" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
