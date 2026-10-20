@@ -12,14 +12,19 @@ namespace SW.EfCoreExtensions
         const string LikeEscapeCharacter = "\\";
 
         // ILIKE: case-insensitive, and served by pg_trgm indexes like LIKE is.
-        private static partial Expression TextMatch(Expression field, string value, bool prefixOnly) =>
+        private static partial Expression TextMatch(Expression field, string value, TextMatchKind kind) =>
             Expression.Call(
                 typeof(NpgsqlDbFunctionsExtensions),
                 nameof(NpgsqlDbFunctionsExtensions.ILike),
                 Type.EmptyTypes,
                 Expression.Property(null, typeof(EF), nameof(EF.Functions)),
                 field,
-                SearchyValue.Captured(prefixOnly ? $"{EscapeLikePattern(value)}%" : $"%{EscapeLikePattern(value)}%", typeof(string)),
+                SearchyValue.Captured(kind switch
+                {
+                    TextMatchKind.Prefix => $"{EscapeLikePattern(value)}%",
+                    TextMatchKind.Suffix => $"%{EscapeLikePattern(value)}",
+                    _ => $"%{EscapeLikePattern(value)}%",
+                }, typeof(string)),
                 Expression.Constant(LikeEscapeCharacter)
             );
 

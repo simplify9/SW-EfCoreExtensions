@@ -67,10 +67,10 @@ namespace SW.EfCoreExtensions
             switch (filter.Rule)
             {
                 case SearchyRule.StartsWith:
-                    return TextMatch(fieldNameExpression, $"{filter.Value}", prefixOnly: true);
+                    return TextMatch(fieldNameExpression, $"{filter.Value}", TextMatchKind.Prefix);
 
                 case SearchyRule.Contains:
-                    return TextMatch(fieldNameExpression, $"{filter.Value}", prefixOnly: false);
+                    return TextMatch(fieldNameExpression, $"{filter.Value}", TextMatchKind.Contains);
 
                 case SearchyRule.EqualsTo:
                     return Expression.Equal(fieldNameExpression, SearchyValue.Captured(filter.Value, fieldType));
@@ -114,7 +114,10 @@ namespace SW.EfCoreExtensions
         /// The text rules, which differ by provider. <paramref name="value"/> is the raw search text;
         /// the implementation must pass it as a captured value, never as a constant.
         /// </summary>
-        private static partial Expression TextMatch(Expression field, string value, bool prefixOnly);
+        private static partial Expression TextMatch(Expression field, string value, TextMatchKind kind);
+
+        /// <summary>The provider's text match, for <see cref="QueryExpressions.TextMatch"/>.</summary>
+        internal static Expression ProviderTextMatch(Expression field, string value, TextMatchKind kind) => TextMatch(field, value, kind);
 
         static RangeValues PopulateRangeValues(object valueCollection)
         {
