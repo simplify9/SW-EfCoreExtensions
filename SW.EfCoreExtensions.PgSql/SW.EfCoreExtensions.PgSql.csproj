@@ -25,6 +25,8 @@
     <Compile Include="..\SW.EfCoreExtensions\Searchy\**\*.cs" LinkBase="Searchy" />
     <!-- Provider-neutral query shaping (projection rows, keyset paging, capped counts). -->
     <Compile Include="..\SW.EfCoreExtensions\Querying\**\*.cs" LinkBase="Querying" />
+    <!-- Aggregate audit capture: provider-neutral, apart from the version bump's SQL, which picks its dialect at run time. -->
+    <Compile Include="..\SW.EfCoreExtensions\Auditing\**\*.cs" LinkBase="Auditing" />
   </ItemGroup>
 
   <ItemGroup>

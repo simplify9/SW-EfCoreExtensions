@@ -25,6 +25,7 @@ The extensions are organized by file and provide additional helpers for EF Core,
 - **IQueryableOfTExtensions.cs**: Queryable extensions and search conditions.
 - **ModelBuilderExtensions.cs**: Model builder helpers.
 - **OwnedNavigationBuilderExtensions.cs**: Owned navigation builder helpers.
+- **Auditing/**: change sets per aggregate root — every change a save makes to a root and the entities under it, with only the fields that changed, and an optional per-root version. See [docs/AGGREGATE_AUDIT.md](docs/AGGREGATE_AUDIT.md).
 
 See the source files for the full list of available extension methods and their usage.
 

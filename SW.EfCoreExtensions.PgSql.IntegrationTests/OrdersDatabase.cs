@@ -76,6 +76,9 @@ public static class OrdersDatabase
 
     public static List<Order> All { get; private set; }
 
+    /// <summary>The run's database, for fixtures with a model of their own.</summary>
+    public static string ConnectionString => container.GetConnectionString();
+
     [AssemblyInitialize]
     public static async Task Start(TestContext _)
     {
