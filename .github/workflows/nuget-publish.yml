@@ -38,7 +38,7 @@ jobs:
       git-tag: ${{ steps.semver.outputs.git-tag }}
       is-release: ${{ steps.semver.outputs.is-release }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # every tag, to compute the next version
           persist-credentials: false
@@ -84,7 +84,7 @@ jobs:
       contents: read
       id-token: write # the OIDC token NuGet/login trades for a short-lived API key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Restore and build
